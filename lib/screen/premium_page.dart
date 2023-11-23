@@ -1,3 +1,5 @@
+import 'package:fit_life/api/api_kurs.dart';
+import 'package:fit_life/api/currency_model.dart';
 import 'package:fit_life/screen/homepage_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,6 +19,7 @@ class _PremiumPageState extends State<PremiumPage> {
   DateTime purchaseDate = DateTime.now();
   String price = '';
   DateTime expired = DateTime.now().add(Duration(days: 30));
+  CurrencyModel listCurrency = CurrencyModel();
 
   late SharedPreferences _logindata;
   late String _email = '';
@@ -32,20 +35,29 @@ class _PremiumPageState extends State<PremiumPage> {
     setState(() {
       _email = _logindata.getString('email')!;
     });
+    getCurrency();
+  }
+
+  void getCurrency() async {
+    Map<String, dynamic> currencyModel =
+        await ApiMoneCurrency.instance.getCurrency();
+    setState(() {
+      listCurrency = CurrencyModel.fromJson(currencyModel);
+    });
+    print("list cur: ${listCurrency.rates}");
   }
 
   List<String> timeZones = ['WIB', 'WITA', 'WIT', 'London'];
-  List<String> moneyRate = ['IDR', 'USD', 'WON'];
+  List<String> moneyRate = ['IDR', 'USD', 'KRW'];
 
   String selectedTimeZone = 'WIB';
-  String selectedMoneyRate = 'IDR';
+  String selectedMoneyRate = 'USD';
 
-  double usdRate =
-      0.000065; // Rate for example purposes, replace with actual rates
-  double wonRate =
-      0.084; // Rate for example purposes, replace with actual rates
-  double annual = 239900;
-  double monthly = 239900 / 12;
+  double annual = 50;
+  double monthly = 50 / 12;
+
+  double convertAnnual = 50;
+  double convertMonthly = 50 / 12;
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +216,14 @@ class _PremiumPageState extends State<PremiumPage> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   selectedMoneyRate = newValue!;
-                                  _convertCurrency();
+                                  convertAnnual = annual *
+                                      double.parse(listCurrency
+                                          .rates![selectedMoneyRate]
+                                          .toString());
+                                  convertMonthly = monthly *
+                                      double.parse(listCurrency
+                                          .rates![selectedMoneyRate]
+                                          .toString());
                                 });
                               },
                               items: moneyRate.map<DropdownMenuItem<String>>(
@@ -233,10 +252,9 @@ class _PremiumPageState extends State<PremiumPage> {
                               onChanged: (value) {
                                 setState(() {
                                   selectedPackage = value as String;
-                                  price = "Rp 239900";
+                                  price = "\u0024 ${annual.toInt()} ";
                                   expired =
                                       DateTime.now().add(Duration(days: 365));
-                                  _convertCurrency();
                                 });
                               },
                             ),
@@ -244,10 +262,9 @@ class _PremiumPageState extends State<PremiumPage> {
                               onTap: () {
                                 setState(() {
                                   selectedPackage = 'annual';
-                                  price = "Rp 19992";
+                                  price = "\u0024 ${annual.toInt()} ";
                                   expired =
                                       DateTime.now().add(Duration(days: 30));
-                                  _convertCurrency();
                                 });
                               },
                               child: Text(
@@ -269,7 +286,7 @@ class _PremiumPageState extends State<PremiumPage> {
                                               locale: 'ID',
                                               symbol: "Rp",
                                               decimalDigits: 0)
-                                          .format(annual)
+                                          .format(convertAnnual)
                                           .toString()
                                       : selectedMoneyRate == 'USD'
                                           ? NumberFormat.currency(
@@ -278,12 +295,12 @@ class _PremiumPageState extends State<PremiumPage> {
                                                   decimalDigits: 0)
                                               .format(annual)
                                               .toString()
-                                          : selectedMoneyRate == 'WON'
+                                          : selectedMoneyRate == 'KRW'
                                               ? NumberFormat.currency(
-                                                      locale: 'en_US',
+                                                      locale: 'ko_KR',
                                                       symbol: "\u20A9",
                                                       decimalDigits: 0)
-                                                  .format(annual)
+                                                  .format(convertAnnual)
                                                   .toString()
                                               : "",
                                   style: GoogleFonts.poppins(
@@ -309,7 +326,7 @@ class _PremiumPageState extends State<PremiumPage> {
                               onChanged: (value) {
                                 setState(() {
                                   selectedPackage = value as String;
-                                  _convertCurrency();
+                                  price = "\u0024 ${monthly.toInt()} ";
                                 });
                               },
                             ),
@@ -317,7 +334,6 @@ class _PremiumPageState extends State<PremiumPage> {
                               onTap: () {
                                 setState(() {
                                   selectedPackage = 'monthly';
-                                  _convertCurrency();
                                 });
                               },
                               child: Text(
@@ -339,7 +355,7 @@ class _PremiumPageState extends State<PremiumPage> {
                                               locale: 'ID',
                                               symbol: "Rp",
                                               decimalDigits: 0)
-                                          .format(monthly)
+                                          .format(convertMonthly)
                                           .toString()
                                       : selectedMoneyRate == 'USD'
                                           ? NumberFormat.currency(
@@ -348,12 +364,12 @@ class _PremiumPageState extends State<PremiumPage> {
                                                   decimalDigits: 0)
                                               .format(monthly)
                                               .toString()
-                                          : selectedMoneyRate == 'WON'
+                                          : selectedMoneyRate == 'KRW'
                                               ? NumberFormat.currency(
-                                                      locale: 'en_US',
+                                                      locale: 'ko_KR',
                                                       symbol: "\u20A9",
                                                       decimalDigits: 0)
-                                                  .format(monthly)
+                                                  .format(convertMonthly)
                                                   .toString()
                                               : "",
                                   style: GoogleFonts.poppins(
@@ -375,7 +391,6 @@ class _PremiumPageState extends State<PremiumPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  // color: Colors.grey[200],
                   child: Padding(
                     padding: EdgeInsets.all(15),
                     child: Row(
@@ -545,13 +560,6 @@ class _PremiumPageState extends State<PremiumPage> {
                           DateFormat('yyyy-MM-dd').format(expired));
                       Navigator.pop(context);
                       _buildSuccessPayment(context);
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   SnackBar(
-                      //     content: Text('Payment success!'),
-                      //     duration: Duration(seconds: 2),
-                      //     backgroundColor: Colors.green,
-                      //   ),
-                      // );
                     },
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
@@ -669,30 +677,6 @@ class _PremiumPageState extends State<PremiumPage> {
 
     setState(() {
       purchaseDate = convertedTime;
-    });
-  }
-
-  void _convertCurrency() {
-    double annualAmount;
-    double monthlyAmount;
-    switch (selectedMoneyRate) {
-      case 'WON':
-        annualAmount = 239900 * wonRate;
-        monthlyAmount = (239900 / 12) * wonRate;
-        break;
-      case 'USD':
-        annualAmount = 239900 * usdRate;
-        monthlyAmount = (239900 / 12) * usdRate;
-        break;
-      default:
-        annualAmount = 239900;
-        monthlyAmount = 239900 / 12;
-        break;
-    }
-
-    setState(() {
-      annual = annualAmount;
-      monthly = monthlyAmount;
     });
   }
 }

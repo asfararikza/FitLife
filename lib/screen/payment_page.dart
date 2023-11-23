@@ -176,7 +176,7 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                                       child: Align(
                                         alignment: Alignment.bottomRight,
                                         child: Text(
-                                          'Rp 239.900',
+                                          paymentData.price + ".0",
                                           style: GoogleFonts.poppins(
                                             textStyle: const TextStyle(
                                               fontSize: 12.0,
@@ -198,119 +198,5 @@ class _PaymentHistoryState extends State<PaymentHistory> {
                   },
                 ),
               ));
-  }
-
-  Widget _buildPaymentList() {
-    return Padding(
-      padding: EdgeInsets.only(top: 10),
-      child: ListView.builder(
-        itemCount: _payment.length,
-        itemBuilder: (context, index) {
-          var paymentData = _payment[index];
-
-          return Padding(
-            // padding: EdgeInsets.only(left: width / 20, right: width / 20),
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Container(
-                height: 110,
-                padding: EdgeInsets.only(top: 15),
-                child: ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.lightGreen[100],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.monetization_on,
-                          size: 35,
-                          color: Colors.green,
-                        ),
-                      ],
-                    ),
-                  ),
-                  title: Text(
-                    paymentData.categoryPremium.toString(),
-                    style: GoogleFonts.poppins(
-                      textStyle: const TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  subtitle: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Purchase date: ${paymentData.paymentDate}}',
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.bottomRight,
-                              child: Text(
-                                'Success',
-                                style: GoogleFonts.poppins(
-                                  textStyle: const TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            'Expired date: ${paymentData.expiredDate}}',
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.bottomRight,
-                              child: Text(
-                                'Rp 239.900',
-                                style: GoogleFonts.poppins(
-                                  textStyle: const TextStyle(
-                                    fontSize: 12.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
   }
 }
